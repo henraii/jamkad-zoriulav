@@ -1,0 +1,64 @@
+<%- include('include/header') %>
+
+<div class="container py-md-5 container--narrow">
+  <%- include('include/flash') %>
+  <h2>
+  <img class="avatar-small" src="https://gravatar.com/avatar/b9408a09298632b5151200f3449434ef?s=128" />
+  <%= profileUsername %>
+  <% if (user && user.username !== profileUsername) { %>
+    <% if (isFollowing) { %>
+      <form class="ml-2 d-inline" action="/unfollow/<%= profileUsername %>" method="POST">
+        <button class="btn btn-danger btn-sm" type="submit">
+          Stop Following <i class="fas fa-user-times"></i>
+        </button>
+      </form>
+    <% } else { %>
+      <form class="ml-2 d-inline" action="/follow/<%= profileUsername %>" method="POST">
+        <button class="btn btn-primary btn-sm" type="submit">
+          Follow <i class="fas fa-user-plus"></i>
+        </button>
+      </form>
+    <% } %>
+  <% } %>
+</h2>
+
+  <div class="profile-nav nav nav-tabs pt-2 mb-4">
+    <a href="#" class="profile-nav-link nav-item nav-link active">Posts: 3</a>
+    <a href="#" class="profile-nav-link nav-item nav-link">Followers: 3</a>
+    <a href="#" class="profile-nav-link nav-item nav-link">Following: 2</a>
+  </div>
+
+  <div class="list-group">
+    <% posts.forEach(function(post) { %>
+    <a
+      href="/post/<%= post._id %>"
+      class="list-group-item list-group-item-action"
+    >
+      <img
+        class="avatar-tiny"
+        src="https://gravatar.com/avatar/b9408a09298632b5151200f3449434ef?s=128"
+      />
+      <strong><%= post.title %></strong> on <%=
+      post.createDate.toLocaleDateString() %>
+    </a>
+    <% }) %>
+  </div>
+</div>
+
+<script>
+  if (typeof user !== 'undefined') {
+    fetch(`/check-follow/${'<%= profileUsername %>'}`)
+      .then(res => res.json())
+      .then(isFollowing => {
+        const followBtn = document.querySelector('form[action="/follow/<%= profileUsername %>"]');
+        const unfollowBtn = document.querySelector('form[action="/unfollow/<%= profileUsername %>"]');  // Add this form if desired
+        if (isFollowing && unfollowBtn) {
+          followBtn.style.display = 'none';
+          unfollowBtn.style.display = 'inline';
+        } else if (!isFollowing && followBtn) {
+          followBtn.style.display = 'inline';
+        }
+      });
+  }
+</script>
+<%- include('include/footer') %>
